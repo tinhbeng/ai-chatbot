@@ -38,7 +38,6 @@ function PureMessages({
     chatId,
     status,
   });
-
   return (
     <div
       ref={messagesContainerRef}

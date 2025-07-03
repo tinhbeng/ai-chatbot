@@ -91,15 +91,48 @@ const components: Partial<Components> = {
       </h6>
     );
   },
+  table: ({ children, ...props }) => (
+    <table className="w-full border border-collapse border-gray-300 my-4" {...props}>
+      {children}
+    </table>
+  ),
+  thead: ({ children, ...props }) => (
+    <thead className="bg-gray-100" {...props}>
+      {children}
+    </thead>
+  ),
+  tbody: ({ children, ...props }) => (
+    <tbody {...props}>
+      {children}
+    </tbody>
+  ),
+  tr: ({ children, ...props }) => (
+    <tr className="hover:bg-gray-50" {...props}>
+      {children}
+    </tr>
+  ),
+  th: ({ children, ...props }) => (
+    <th className="border p-2 text-left font-semibold" {...props}>
+      {children}
+    </th>
+  ),
+  td: ({ children, ...props }) => (
+    <td className="border p-2" {...props}>
+      {children}
+    </td>
+  ),
+  
 };
 
 const remarkPlugins = [remarkGfm];
 
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   return (
+    <div>
     <ReactMarkdown remarkPlugins={remarkPlugins} components={components}>
       {children}
     </ReactMarkdown>
+    </div>
   );
 };
 

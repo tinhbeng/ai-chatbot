@@ -19,6 +19,7 @@ import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import TrendingToken from './be-tool/trending-token';
 
 const PurePreviewMessage = ({
   chatId,
@@ -88,6 +89,7 @@ const PurePreviewMessage = ({
               )}
 
             {message.parts?.map((part, index) => {
+              console.log('partsssss', part)
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
 
@@ -164,11 +166,13 @@ const PurePreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather'].includes(toolName),
+                        skeleton: ['getWeather', 'getTokenTrending'].includes(toolName),
                       })}
                     >
                       {toolName === 'getWeather' ? (
                         <Weather />
+                      ) : toolName === 'getTokenTrending' ? (
+                        <TrendingToken />
                       ) : toolName === 'createDocument' ? (
                         <DocumentPreview isReadonly={isReadonly} args={args} />
                       ) : toolName === 'updateDocument' ? (
@@ -190,11 +194,13 @@ const PurePreviewMessage = ({
 
                 if (state === 'result') {
                   const { result } = toolInvocation;
-
+                  console.log('resssssullllll', result)
                   return (
                     <div key={toolCallId}>
                       {toolName === 'getWeather' ? (
                         <Weather weatherAtLocation={result} />
+                      ) : toolName === 'getTokenTrending' ? (
+                        <TrendingToken data={result?.data?.tokens} />
                       ) : toolName === 'createDocument' ? (
                         <DocumentPreview
                           isReadonly={isReadonly}

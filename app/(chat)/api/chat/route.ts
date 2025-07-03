@@ -36,6 +36,8 @@ import { after } from 'next/server';
 import type { Chat } from '@/lib/db/schema';
 import { differenceInSeconds } from 'date-fns';
 import { ChatSDKError } from '@/lib/errors';
+import { getDefiPrice } from '@/lib/ai/tools/get-defi-price';
+import { getTokenTrending } from '@/lib/ai/tools/get-trending-token';
 
 export const maxDuration = 60;
 
@@ -74,7 +76,6 @@ export async function POST(request: Request) {
   try {
     const { id, message, selectedChatModel, selectedVisibilityType } =
       requestBody;
-
     const session = await auth();
 
     if (!session?.user) {
@@ -143,7 +144,8 @@ export async function POST(request: Request) {
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
-
+    console.log('selectedChatModel', selectedChatModel)
+    console.log('myProvider.languageModel(selectedChatModel)', myProvider.languageModel(selectedChatModel))
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
@@ -155,23 +157,28 @@ export async function POST(request: Request) {
             selectedChatModel === 'chat-model-reasoning'
               ? []
               : [
-                  'getWeather',
+                  'getTokenTrending',
+                  'getDefiPrice',
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
+                  'getWeather'
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
           tools: {
-            getWeather,
+            getTokenTrending,
+            getDefiPrice,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
             requestSuggestions: requestSuggestions({
               session,
               dataStream,
             }),
+            getWeather
           },
           onFinish: async ({ response }) => {
+            console.log('response', response)
             if (session.user?.id) {
               try {
                 const assistantId = getTrailingMessageId({
@@ -225,7 +232,6 @@ export async function POST(request: Request) {
     });
 
     const streamContext = getStreamContext();
-
     if (streamContext) {
       return new Response(
         await streamContext.resumableStream(streamId, () => stream),
