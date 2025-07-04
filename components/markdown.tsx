@@ -97,7 +97,7 @@ const components: Partial<Components> = {
     </table>
   ),
   thead: ({ children, ...props }) => (
-    <thead className="bg-gray-100" {...props}>
+    <thead {...props}>
       {children}
     </thead>
   ),
@@ -107,7 +107,7 @@ const components: Partial<Components> = {
     </tbody>
   ),
   tr: ({ children, ...props }) => (
-    <tr className="hover:bg-gray-50" {...props}>
+    <tr {...props}>
       {children}
     </tr>
   ),

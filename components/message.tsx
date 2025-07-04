@@ -155,76 +155,76 @@ const PurePreviewMessage = ({
                 }
               }
 
-              if (type === 'tool-invocation') {
-                const { toolInvocation } = part;
-                const { toolName, toolCallId, state } = toolInvocation;
+              // if (type === 'tool-invocation') {
+              //   const { toolInvocation } = part;
+              //   const { toolName, toolCallId, state } = toolInvocation;
 
-                if (state === 'call') {
-                  const { args } = toolInvocation;
+              //   if (state === 'call') {
+              //     const { args } = toolInvocation;
 
-                  return (
-                    <div
-                      key={toolCallId}
-                      className={cx({
-                        skeleton: ['getWeather', 'getTokenTrending'].includes(toolName),
-                      })}
-                    >
-                      {toolName === 'getWeather' ? (
-                        <Weather />
-                      ) : toolName === 'getTokenTrending' ? (
-                        <TrendingToken />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentPreview isReadonly={isReadonly} args={args} />
-                      ) : toolName === 'updateDocument' ? (
-                        <DocumentToolCall
-                          type="update"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'requestSuggestions' ? (
-                        <DocumentToolCall
-                          type="request-suggestions"
-                          args={args}
-                          isReadonly={isReadonly}
-                        />
-                      ) : null}
-                    </div>
-                  );
-                }
+              //     return (
+              //       <div
+              //         key={toolCallId}
+              //         className={cx({
+              //           skeleton: ['getWeather', 'getTokenTrending'].includes(toolName),
+              //         })}
+              //       >
+              //         {toolName === 'getWeather' ? (
+              //           <Weather />
+              //         ) : toolName === 'getTokenTrending' ? (
+              //           <TrendingToken />
+              //         ) : toolName === 'createDocument' ? (
+              //           <DocumentPreview isReadonly={isReadonly} args={args} />
+              //         ) : toolName === 'updateDocument' ? (
+              //           <DocumentToolCall
+              //             type="update"
+              //             args={args}
+              //             isReadonly={isReadonly}
+              //           />
+              //         ) : toolName === 'requestSuggestions' ? (
+              //           <DocumentToolCall
+              //             type="request-suggestions"
+              //             args={args}
+              //             isReadonly={isReadonly}
+              //           />
+              //         ) : null}
+              //       </div>
+              //     );
+              //   }
 
-                if (state === 'result') {
-                  const { result } = toolInvocation;
-                  console.log('resssssullllll', result)
-                  return (
-                    <div key={toolCallId}>
-                      {toolName === 'getWeather' ? (
-                        <Weather weatherAtLocation={result} />
-                      ) : toolName === 'getTokenTrending' ? (
-                        <TrendingToken data={result?.data?.tokens} />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentPreview
-                          isReadonly={isReadonly}
-                          result={result}
-                        />
-                      ) : toolName === 'updateDocument' ? (
-                        <DocumentToolResult
-                          type="update"
-                          result={result}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'requestSuggestions' ? (
-                        <DocumentToolResult
-                          type="request-suggestions"
-                          result={result}
-                          isReadonly={isReadonly}
-                        />
-                      ) : (
-                        <pre>{JSON.stringify(result, null, 2)}</pre>
-                      )}
-                    </div>
-                  );
-                }
-              }
+              //   if (state === 'result') {
+              //     const { result } = toolInvocation;
+              //     console.log('resssssullllll', result)
+              //     return (
+              //       <div key={toolCallId}>
+              //         {toolName === 'getWeather' ? (
+              //           <Weather weatherAtLocation={result} />
+              //         ) : toolName === 'getTokenTrending' ? (
+              //           <TrendingToken data={result?.data?.tokens} />
+              //         ) : toolName === 'createDocument' ? (
+              //           <DocumentPreview
+              //             isReadonly={isReadonly}
+              //             result={result}
+              //           />
+              //         ) : toolName === 'updateDocument' ? (
+              //           <DocumentToolResult
+              //             type="update"
+              //             result={result}
+              //             isReadonly={isReadonly}
+              //           />
+              //         ) : toolName === 'requestSuggestions' ? (
+              //           <DocumentToolResult
+              //             type="request-suggestions"
+              //             result={result}
+              //             isReadonly={isReadonly}
+              //           />
+              //         ) : (
+              //           <pre>{JSON.stringify(result, null, 2)}</pre>
+              //         )}
+              //       </div>
+              //     );
+              //   }
+              // }
             })}
 
             {!isReadonly && (
