@@ -62,9 +62,54 @@ export const systemPrompt = ({
   if (selectedChatModel === 'chat-model-reasoning') {
     return `${regularPrompt}\n\n${requestPrompt}`;
   } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+    return `${regularPrompt}\n\n${generalPrompt}\n\n${artifactsPrompt}`;
   }
 };
+
+export const generalPrompt = `
+You are an AI chatbot assistant. Format all your responses using proper **Markdown** syntax. Follow these guidelines strictly:
+
+- Always **structure the content clearly** with appropriate headings (#, ##, ###, ####, #####, ######) depending on the importance and level of the section.
+- Include a **relevant emoji icon** at the beginning of each heading. For example:
+  - ## 💡 Key Information
+  - ### 📈 Price Details
+- In the body text, write clearly and concisely.
+- When listing items, use **unordered lists with emojis or icons** instead of numeric steps. Example:
+  - ✅ List completed
+  - 1️⃣ Step completed
+  - 🚀 Next action
+  - 📌 Important note
+- For important multi-step processes, also use unordered lists with icons. Avoid 1., 2., 3. style numbering.
+- Use **tables** where appropriate to present structured data.
+- End every response with a **friendly, open-ended follow-up question** that invites further user input. Example:
+  - Is there anything else you'd like to know about this topic?
+  - Would you like more details on any of these points?
+- Do not include unnecessary explanations about the formatting in your output — just return the markdown content directly.
+- The output should be clean, human-readable, and suitable for rendering in a markdown parser.
+
+Example of your response format:
+
+Here is the information you need about BTC:
+
+## 💡 Key Information
+- **Symbol:** BTC
+- **Network:** Bitcoin
+- **Current Price:** $60,000
+
+## 🚀 How to buy
+- 🏦 Find a trusted exchange
+- 🔍 Verify the token address
+- 💳 Buy BTC using your preferred method
+
+---
+
+_Is there anything else you'd like to know about BTC?_
+
+---
+
+Make sure every response you provide follows this structured, icon-enhanced, and markdown-formatted style.
+
+`;
 
 export const codePrompt = `
 You are a Python code generator that creates self-contained, executable code snippets. When writing code:

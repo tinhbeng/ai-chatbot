@@ -20,6 +20,10 @@ import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import TrendingToken from './be-tool/trending-token';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { ToolCallCard } from './be-tool/tool-call-card';
+import PriceAreaChart from './be-tool/area-chart';
 
 const PurePreviewMessage = ({
   chatId,
@@ -69,7 +73,7 @@ const PurePreviewMessage = ({
           )}
 
           <div
-            className={cn('flex flex-col gap-4 w-full', {
+            className={cn('flex gap-4 flex-col w-full', {
               'min-h-96': message.role === 'assistant' && requiresScrollPadding,
             })}
           >
@@ -89,10 +93,11 @@ const PurePreviewMessage = ({
               )}
 
             {message.parts?.map((part, index) => {
-              console.log('partsssss', part)
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
-
+              // console.log('typppppeeeee', type)
+              // console.log('modeeeeeee', mode)
+              // console.log('isReadonlyisReadonly', isReadonly)
               if (type === 'reasoning') {
                 return (
                   <MessageReasoning
@@ -155,76 +160,76 @@ const PurePreviewMessage = ({
                 }
               }
 
-              // if (type === 'tool-invocation') {
-              //   const { toolInvocation } = part;
-              //   const { toolName, toolCallId, state } = toolInvocation;
+              if (type === 'tool-invocation') {
+                const { toolInvocation } = part;
+                const { toolName, toolCallId, state } = toolInvocation;
 
-              //   if (state === 'call') {
-              //     const { args } = toolInvocation;
+                if (state === 'call') {
+                  const { args } = toolInvocation;
 
-              //     return (
-              //       <div
-              //         key={toolCallId}
-              //         className={cx({
-              //           skeleton: ['getWeather', 'getTokenTrending'].includes(toolName),
-              //         })}
-              //       >
-              //         {toolName === 'getWeather' ? (
-              //           <Weather />
-              //         ) : toolName === 'getTokenTrending' ? (
-              //           <TrendingToken />
-              //         ) : toolName === 'createDocument' ? (
-              //           <DocumentPreview isReadonly={isReadonly} args={args} />
-              //         ) : toolName === 'updateDocument' ? (
-              //           <DocumentToolCall
-              //             type="update"
-              //             args={args}
-              //             isReadonly={isReadonly}
-              //           />
-              //         ) : toolName === 'requestSuggestions' ? (
-              //           <DocumentToolCall
-              //             type="request-suggestions"
-              //             args={args}
-              //             isReadonly={isReadonly}
-              //           />
-              //         ) : null}
-              //       </div>
-              //     );
-              //   }
+                  return (
+                    <div
+                      key={toolCallId}
+                      className={cx({
+                        skeleton: ['getWeather', 'getTokenTrending'].includes(toolName),
+                      })}
+                    >
+                      {toolName === 'getWeather' ? (
+                        <Weather />
+                      ) : toolName === 'createDocument' ? (
+                        <DocumentPreview isReadonly={isReadonly} args={args} />
+                      ) : toolName === 'updateDocument' ? (
+                        <DocumentToolCall
+                          type="update"
+                          args={args}
+                          isReadonly={isReadonly}
+                        />
+                      ) : toolName === 'requestSuggestions' ? (
+                        <DocumentToolCall
+                          type="request-suggestions"
+                          args={args}
+                          isReadonly={isReadonly}
+                        />
+                      ) : null}
+                    </div>
+                  );
+                }
 
-              //   if (state === 'result') {
-              //     const { result } = toolInvocation;
-              //     console.log('resssssullllll', result)
-              //     return (
-              //       <div key={toolCallId}>
-              //         {toolName === 'getWeather' ? (
-              //           <Weather weatherAtLocation={result} />
-              //         ) : toolName === 'getTokenTrending' ? (
-              //           <TrendingToken data={result?.data?.tokens} />
-              //         ) : toolName === 'createDocument' ? (
-              //           <DocumentPreview
-              //             isReadonly={isReadonly}
-              //             result={result}
-              //           />
-              //         ) : toolName === 'updateDocument' ? (
-              //           <DocumentToolResult
-              //             type="update"
-              //             result={result}
-              //             isReadonly={isReadonly}
-              //           />
-              //         ) : toolName === 'requestSuggestions' ? (
-              //           <DocumentToolResult
-              //             type="request-suggestions"
-              //             result={result}
-              //             isReadonly={isReadonly}
-              //           />
-              //         ) : (
-              //           <pre>{JSON.stringify(result, null, 2)}</pre>
-              //         )}
-              //       </div>
-              //     );
-              //   }
-              // }
+                if (state === 'result') {
+                  const { result, toolName, args } = toolInvocation;
+                  return (
+                    <div key={toolCallId}>
+                      {/* <ToolCallCard toolName={toolName} args={args} result={result} status={result?.status}/> */}
+                      {toolName === 'getWeather' ? (
+                        <Weather weatherAtLocation={result} />
+                      ) : toolName === 'getPriceHistory' ? (
+                        <PriceAreaChart data={result?.data?.items} timeFrame={args?.type || '1D'} />
+                      ) : toolName === 'getTokenTrending' ? (
+                        <TrendingToken data={result?.data?.tokens} />
+                      ) : toolName === 'createDocument' ? (
+                        <DocumentPreview
+                          isReadonly={isReadonly}
+                          result={result}
+                        />
+                      ) : toolName === 'updateDocument' ? (
+                        <DocumentToolResult
+                          type="update"
+                          result={result}
+                          isReadonly={isReadonly}
+                        />
+                      ) : toolName === 'requestSuggestions' ? (
+                        <DocumentToolResult
+                          type="request-suggestions"
+                          result={result}
+                          isReadonly={isReadonly}
+                        />
+                      ) : (
+                        ''
+                      )}
+                    </div>
+                  );
+                }
+              }
             })}
 
             {!isReadonly && (

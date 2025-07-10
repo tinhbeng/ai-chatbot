@@ -5,6 +5,7 @@ import {
   smoothStream,
   streamText,
 } from "ai";
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { auth, type UserType } from "@/app/(auth)/auth";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import {
@@ -32,6 +33,10 @@ import {
   createResumableStreamContext,
   type ResumableStreamContext,
 } from "resumable-stream";
+import {
+  MCPTransport,
+  experimental_createMCPClient as createMCPClient,
+} from 'ai';
 import { after } from "next/server";
 import type { Chat } from "@/lib/db/schema";
 import { differenceInSeconds } from "date-fns";
@@ -42,6 +47,9 @@ import { getTokenOverview } from "@/lib/ai/tools/token-overview";
 import { searchTokens } from "@/lib/ai/tools/search-token";
 import { getWalletPortfolio } from "@/lib/ai/tools/get-wallet-portfolio";
 import { getGainerLoser } from "@/lib/ai/tools/get-gainer-loser";
+import { getTokenHolder } from "@/lib/ai/tools/token-holder";
+import { getPriceHistory } from "@/lib/ai/tools/get-price-history";
+import { getCurentTimestamp } from "@/lib/ai/tools/getDateTime";
 
 export const maxDuration = 60;
 
@@ -66,10 +74,37 @@ function getStreamContext() {
 
   return globalStreamContext;
 }
+const url = new URL('https://dev-mcp.birdeye.so/mcp');
+// const url = new URL('https://dev-mcp.birdeye.so/mcp');
+// const mcpClient = await createMCPClient({
+//   transport: new StreamableHTTPClientTransport(url, {
+//     sessionId: 'session_123',
+//     // headers: {
+//     //   'x-api-key': 'YOUR_API_KEY_HERE',
+//     // },
+//   }),
+// });
+
+// class CustomStreamableHTTPClientTransport extends StreamableHTTPClientTransport {
+//   protected override async _fetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
+//     const headers = new Headers(init?.headers || {});
+//     headers.set('x-api-key', 'YOUR_API_KEY_HERE'); // Thay bằng API key thật
+//     return super._fetch(input, { ...init, headers });
+//   }
+// }
+
+// const url = new URL('https://dev-mcp.birdeye.so/mcp');
+// const transport = new CustomStreamableHTTPClientTransport(url, {
+//   sessionId: 'session_123',
+// });
+
+// const mcpClient = await createMCPClient({
+//   transport,
+// });
 
 export async function POST(request: Request) {
+  
   let requestBody: PostRequestBody;
-
   try {
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
@@ -153,26 +188,21 @@ export async function POST(request: Request) {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system:
-            systemPrompt({ selectedChatModel, requestHints }) +
-            `Format your response using proper **Markdown** syntax.
-              For example:
-              # Main heading
-              ## Subheading
-              - List item
-              **Bold text**
-              | Table | Example |
-              `,
+            systemPrompt({ selectedChatModel, requestHints }),
           messages,
           maxSteps: 5,
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
               : [
-                "searchTokens",
+                  "searchTokens",
+                  "getPriceHistory",
                   "getTokenTrending",
                   "getDefiPrice",
                   "getWalletPortfolio",
                   "getTokenOverview",
+                  "getTokenHolder",
+                  "getCurentTimestamp",
                   "getGainerLoser",
                   "createDocument",
                   "updateDocument",
@@ -183,10 +213,13 @@ export async function POST(request: Request) {
           experimental_generateMessageId: generateUUID,
           tools: {
             searchTokens,
+            getPriceHistory,
             getTokenTrending,
             getDefiPrice,
             getWalletPortfolio,
             getTokenOverview,
+            getTokenHolder,
+            getCurentTimestamp,
             getGainerLoser,
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),

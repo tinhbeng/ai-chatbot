@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const TrendingToken = ({data}: {data?: TokenTrending[]}) => {
-    console.log('dataa', data)
     if (!data) return null
 
     return (

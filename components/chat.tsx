@@ -82,7 +82,7 @@ export function Chat({
       }
     },
   });
-
+  console.log('statusssss', status)
   const searchParams = useSearchParams();
   const query = searchParams.get('query');
 

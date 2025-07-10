@@ -1,3 +1,4 @@
+import { auth } from "@/app/(auth)/auth";
 import { BaseResponse } from "./types";
 
 const BASE_URL = 'https://public-api.birdeye.so';
@@ -66,3 +67,30 @@ export async function httpFetch<T = any>(
     } as unknown as T;
   }
 }
+
+
+// async function handleToolInvocation(toolName, parameters) {
+
+//   const session = await auth();
+
+//   // 2.1. Tìm server chứa tool này
+//   const server = listServers.find(srv =>
+//     srv.toolList.some(t => t.name === toolName)
+//   );
+//   if (!server) throw new Error("Tool not found!");
+
+//   // 2.2. Gửi request tới server.url (với headers), gọi tool theo JSON-RPC
+//   const res = await fetch(server.url, {
+//     method: "POST",
+//     headers: server.headers,
+//     body: JSON.stringify({
+//       jsonrpc: "2.0",
+//       id: Date.now(),
+//       method: toolName,
+//       params: parameters
+//     }),
+//   });
+//   const result = await res.json();
+//   // result có thể là kết quả trả về từ tool
+//   return result.result ?? result;
+// }
