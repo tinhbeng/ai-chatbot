@@ -22,10 +22,12 @@ import {
   document,
   type Suggestion,
   suggestion,
+  tools,
   message,
   vote,
   type DBMessage,
   type Chat,
+  type DBTools,
   stream,
 } from './schema';
 import type { ArtifactKind } from '@/components/artifact';
@@ -233,6 +235,42 @@ export async function getMessagesByChatId({ id }: { id: string }) {
       'Failed to get messages by chat id',
     );
   }
+}
+
+export async function saveToolsForUser(userId: string, mcpUrl: string, toolList: any[]) {
+  // Xoá tool cũ cùng user_id + mcp_url nếu muốn full sync:
+  await db.delete(tools).where(and(
+    eq(tools.user_id, userId),
+    eq(tools.mcp_url, mcpUrl)
+  ));
+
+  // Thêm lại tools mới
+  for (const tool of toolList) {
+    await db.insert(tools).values({
+      user_id: userId,
+      mcp_url: mcpUrl,
+      name: tool.name,
+      description: tool.description,
+      input_schema: tool.inputSchema || tool.input_schema,
+    });
+  }
+}
+
+export async function getToolsForUser(userId: string, mcpUrl: string) {
+  return await db.select().from(tools)
+    .where(and(
+      eq(tools.user_id, userId),
+      eq(tools.mcp_url, mcpUrl)
+    ));
+}
+
+export async function deleteToolsForUser(userId: string, mcpUrl: string) {
+  return await db.delete(tools).where(
+    and(
+      eq(tools.user_id, userId),
+      eq(tools.mcp_url, mcpUrl)
+    )
+  );
 }
 
 export async function voteMessage({

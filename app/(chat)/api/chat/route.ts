@@ -15,6 +15,7 @@ import {
   getMessageCountByUserId,
   getMessagesByChatId,
   getStreamIdsByChatId,
+  getToolsForUser,
   saveChat,
   saveMessages,
 } from "@/lib/db/queries";
@@ -50,10 +51,12 @@ import { getGainerLoser } from "@/lib/ai/tools/get-gainer-loser";
 import { getTokenHolder } from "@/lib/ai/tools/token-holder";
 import { getPriceHistory } from "@/lib/ai/tools/get-price-history";
 import { getCurentTimestamp } from "@/lib/ai/tools/getDateTime";
+import { mapMcpToolsToSdk } from "@/lib/ai/tools/mcp-toolcall";
 
 export const maxDuration = 60;
 
 let globalStreamContext: ResumableStreamContext | null = null;
+
 
 function getStreamContext() {
   if (!globalStreamContext) {
@@ -102,7 +105,23 @@ const url = new URL('https://dev-mcp.birdeye.so/mcp');
 //   transport,
 // });
 
+const toolCache: Record<string, any[]> = {};
+
+async function getUserTools(userId: string, mcpUrl: string) {
+  if (toolCache[userId]) return toolCache[userId];
+
+  const tools = await getToolsForUser(userId, mcpUrl)
+  toolCache[userId] = tools;
+  return tools;
+}
+
+// Khi user update toolList, nhớ xóa cache:
+function invalidateToolCache(userId: string) {
+  delete toolCache[userId];
+}
+
 export async function POST(request: Request) {
+ 
   
   let requestBody: PostRequestBody;
   try {
@@ -120,6 +139,9 @@ export async function POST(request: Request) {
     if (!session?.user) {
       return new ChatSDKError("unauthorized:chat").toResponse();
     }
+
+    const toolList = await getUserTools(session.user.id, 'https://dev-mcp.birdeye.so/mcp')
+    // console.log('toolCache', toolCache)
 
     const userType: UserType = session.user.type;
 
@@ -183,6 +205,15 @@ export async function POST(request: Request) {
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
+    // console.log('toolList[0]', toolList)
+    const toolSchema = mapMcpToolsToSdk(toolList, 'e011325c-6873-4803-a61b-e0ffeadc47cf');
+    // console.log('toolSchema',toolSchema)
+
+    const mcpToolsObj = Object.fromEntries(
+      toolSchema.map(tool => [tool.name, tool])
+    );
+    
+    // console.log('mcpToolsObj', mcpToolsObj)
     const stream = createDataStream({
       execute: (dataStream) => {
         const result = streamText({
@@ -191,44 +222,45 @@ export async function POST(request: Request) {
             systemPrompt({ selectedChatModel, requestHints }),
           messages,
           maxSteps: 5,
-          experimental_activeTools:
-            selectedChatModel === "chat-model-reasoning"
-              ? []
-              : [
-                  "searchTokens",
-                  "getPriceHistory",
-                  "getTokenTrending",
-                  "getDefiPrice",
-                  "getWalletPortfolio",
-                  "getTokenOverview",
-                  "getTokenHolder",
-                  "getCurentTimestamp",
-                  "getGainerLoser",
-                  "createDocument",
-                  "updateDocument",
-                  "requestSuggestions",
-                  "getWeather",
-                ],
+          // experimental_activeTools:
+          //   selectedChatModel === "chat-model-reasoning"
+          //     ? []
+          //     : [
+          //         "searchTokens",
+          //         "getPriceHistory",
+          //         "getTokenTrending",
+          //         "getDefiPrice",
+          //         "getWalletPortfolio",
+          //         "getTokenOverview",
+          //         "getTokenHolder",
+          //         "getCurentTimestamp",
+          //         "getGainerLoser",
+          //         "createDocument",
+          //         "updateDocument",
+          //         "requestSuggestions",
+          //         "getWeather",
+          //       ],
           experimental_transform: smoothStream({ chunking: "word" }),
           experimental_generateMessageId: generateUUID,
-          tools: {
-            searchTokens,
-            getPriceHistory,
-            getTokenTrending,
-            getDefiPrice,
-            getWalletPortfolio,
-            getTokenOverview,
-            getTokenHolder,
-            getCurentTimestamp,
-            getGainerLoser,
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-            }),
-            getWeather,
-          },
+          tools: mcpToolsObj,
+          // {
+          //   searchTokens,
+          //   getPriceHistory,
+          //   getTokenTrending,
+          //   getDefiPrice,
+          //   getWalletPortfolio,
+          //   getTokenOverview,
+          //   getTokenHolder,
+          //   getCurentTimestamp,
+          //   getGainerLoser,
+          //   createDocument: createDocument({ session, dataStream }),
+          //   updateDocument: updateDocument({ session, dataStream }),
+          //   requestSuggestions: requestSuggestions({
+          //     session,
+          //     dataStream,
+          //   }),
+          //   getWeather,
+          // },
           onFinish: async ({ response }) => {
             if (session.user?.id) {
               try {

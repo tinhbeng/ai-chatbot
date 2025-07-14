@@ -13,6 +13,7 @@ import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { type VisibilityType, VisibilitySelector } from './visibility-selector';
 import type { Session } from 'next-auth';
+import { AddMcpServer } from './be-tool/add-mcp';
 
 function PureChatHeader({
   chatId,
@@ -32,23 +33,23 @@ function PureChatHeader({
 
   const { width: windowWidth } = useWindowSize();
 
-  const getListTool = async () => {
-       // Gọi MCP server để lấy tool list
-       try{
-        const res = await fetch('/api/tool-list', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: 'https://dev-mcp.birdeye.so/mcp',
-            apiKey: 'dc9909a243924571b64f7c65fa2c032f',
-          })
-        });
-        const toolList = await res.json();
-        console.log('toolList', toolList)
-    } catch (e) {
-      console.log('errror', e)
-    }
-  }
+  // const getListTool = async () => {
+  //      // Gọi MCP server để lấy tool list
+  //      try{
+  //       const res = await fetch('/api/tool-list', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({
+  //           url: 'https://dev-mcp.birdeye.so/mcp',
+  //           apiKey: 'dc9909a243924571b64f7c65fa2c032f',
+  //         })
+  //       });
+  //       const toolList = await res.json();
+  //       console.log('toolList', toolList)
+  //   } catch (e) {
+  //     console.log('errror', e)
+  //   }
+  // }
 
   return (
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
@@ -89,12 +90,14 @@ function PureChatHeader({
         />
       )}
 
-      <Button
+      <AddMcpServer />
+
+      {/* <Button
         className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
         onClick={getListTool}
       >
         + MCP Server
-      </Button>
+      </Button> */}
     </header>
   );
 }

@@ -1,4 +1,5 @@
 import { auth } from "@/app/(auth)/auth";
+import { saveToolsForUser } from "@/lib/db/queries";
 import { ChatSDKError } from "@/lib/errors";
 
 // /app/api/list-tool/route.ts
@@ -11,6 +12,7 @@ export async function POST(request: Request) {
         if (!session?.user) {
             return new ChatSDKError("bad_request:auth").toResponse();
         }
+        
       // Build header động (có thể thêm nhiều header từ user input)
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
           }
         }),
       });
-      console.log('sessionRes', sessionRes)
+      
       const mcp_session_id =
       sessionRes.headers.get("mcp-session-id") ||
       sessionRes.headers.get("Mcp-Session-Id") ||
@@ -62,10 +64,22 @@ export async function POST(request: Request) {
           params: {}
         }),
       });
-  
-      const toolList = await res.json();
+      const text = await res.text();
 
-      return Response.json(toolList);
+        const dataLines = text.split('\n').filter(line => line.startsWith('data: '));
+        const payloads = dataLines.map(line => {
+        try {
+            return JSON.parse(line.replace(/^data: /, ''));
+        } catch (e) {
+            return null;
+        }
+        }).filter(Boolean);
+
+        const toolList = payloads[0] || null; // thường payload đầu là data JSON mong muốn
+        // console.log('toolList', toolList?.result?.tools)
+        if (session?.user?.id)
+        await saveToolsForUser(session?.user?.id, mcpUrl, toolList?.result?.tools);
+        return Response.json(toolList);;
   
     } catch (error) {
       console.error(error);
