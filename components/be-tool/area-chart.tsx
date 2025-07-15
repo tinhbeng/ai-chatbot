@@ -1,6 +1,7 @@
 import { formatTime, formatTimeToUtc, timeFormatLocal } from "@/lib/date";
 import { formatPrice, isNumber } from "@/lib/number";
 import { LucideTimerOff } from "lucide-react";
+import { useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -20,6 +21,8 @@ export default function PriceAreaChart({
   data: any;
   timeFrame: string;
 }) {
+
+  console.log('dataaaa', data)
   const dateTimeFormatter = (time: number, timeFrame: string) => {
     let pattern;
 
@@ -33,11 +36,28 @@ export default function PriceAreaChart({
 
     return formatTime(time, pattern);
   };
+
+  const newData = useMemo(() => {
+    if (data?.content?.[0]?.text) {
+      const text = data.content[0].text;
+      const startIndex = text.indexOf('{');
+      const jsonString = text.slice(startIndex);
+      const dataObj = JSON.parse(jsonString);
+      // Nếu data là object chứa mảng, ví dụ: { data: [...] }
+      const dataArray = dataObj.data; // Hoặc truy sâu hơn nếu cần
+      console.log(dataArray);
+      return dataArray?.items
+    } else if (data?.data?.items) { 
+      return data?.data?.items
+    } else {
+      return []
+    }
+  }, [data])
   return (
     <div className="p-4 rounded border">
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer>
-          <AreaChart data={data}>
+          <AreaChart data={newData}>
             <defs>
               <linearGradient id="colorPriceChart" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />

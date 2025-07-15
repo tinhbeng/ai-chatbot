@@ -77,7 +77,7 @@ function getStreamContext() {
 
   return globalStreamContext;
 }
-const url = new URL('https://dev-mcp.birdeye.so/mcp');
+// const url = new URL('https://dev-mcp.birdeye.so/mcp');
 // const url = new URL('https://dev-mcp.birdeye.so/mcp');
 // const mcpClient = await createMCPClient({
 //   transport: new StreamableHTTPClientTransport(url, {
@@ -206,13 +206,15 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
     // console.log('toolList[0]', toolList)
-    const toolSchema = mapMcpToolsToSdk(toolList, 'e011325c-6873-4803-a61b-e0ffeadc47cf');
-    // console.log('toolSchema',toolSchema)
-
-    const mcpToolsObj = Object.fromEntries(
-      toolSchema.map(tool => [tool.name, tool])
-    );
     
+    // MCP get tool list
+    // const toolSchema = mapMcpToolsToSdk(toolList, 'dcf00f35-d57a-4d07-aa6b-3b57bfa42b35');
+
+    // const mcpToolsObj = Object.fromEntries(
+    //   toolSchema.map(tool => [tool.name, tool])
+    // );
+    // End 
+
     // console.log('mcpToolsObj', mcpToolsObj)
     const stream = createDataStream({
       execute: (dataStream) => {
@@ -242,25 +244,25 @@ export async function POST(request: Request) {
           //       ],
           experimental_transform: smoothStream({ chunking: "word" }),
           experimental_generateMessageId: generateUUID,
-          tools: mcpToolsObj,
-          // {
-          //   searchTokens,
-          //   getPriceHistory,
-          //   getTokenTrending,
-          //   getDefiPrice,
-          //   getWalletPortfolio,
-          //   getTokenOverview,
-          //   getTokenHolder,
-          //   getCurentTimestamp,
-          //   getGainerLoser,
-          //   createDocument: createDocument({ session, dataStream }),
-          //   updateDocument: updateDocument({ session, dataStream }),
-          //   requestSuggestions: requestSuggestions({
-          //     session,
-          //     dataStream,
-          //   }),
-          //   getWeather,
-          // },
+          // tools: {...mcpToolsObj, getCurentTimestamp},
+          tools: {
+            searchTokens,
+            getPriceHistory,
+            getTokenTrending,
+            getDefiPrice,
+            getWalletPortfolio,
+            getTokenOverview,
+            getTokenHolder,
+            getCurentTimestamp,
+            getGainerLoser,
+            createDocument: createDocument({ session, dataStream }),
+            updateDocument: updateDocument({ session, dataStream }),
+            requestSuggestions: requestSuggestions({
+              session,
+              dataStream,
+            }),
+            getWeather,
+          },
           onFinish: async ({ response }) => {
             if (session.user?.id) {
               try {

@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         headers,
         body: JSON.stringify({
           jsonrpc: "2.0",
-          id: 0,
+          id: session?.user?.id,
           method: "initialize",
           params: {
             "protocolVersion": "2024-11-05",
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       sessionRes.headers.get("Mcp-Session-Id") ||
       sessionRes.headers.get("MCP-SESSION-ID");
 
+      console.log('session?.user?.id', session?.user?.id)
       console.log('mcp_session_id', mcp_session_id)
 
     if (!mcp_session_id) {

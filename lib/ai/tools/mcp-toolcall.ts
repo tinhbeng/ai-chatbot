@@ -1,11 +1,20 @@
 import { jsonSchema } from "ai";
 
 const callMcpTool = async (mcp_url: string, toolName: string, params: any, mcp_session_id: string) => {
+  // const body = {
+  //   jsonrpc: "2.0",
+  //   id: Date.now(),
+  //   method: toolName,
+  //   params,
+  // };
   const body = {
     jsonrpc: "2.0",
     id: Date.now(),
-    method: toolName,
-    params,
+    method: 'tools/call',
+    params: {
+      name: toolName,
+      arguments: params
+    },
   };
 
   console.log('bodyRequest', JSON.stringify(body))
@@ -29,7 +38,7 @@ const callMcpTool = async (mcp_url: string, toolName: string, params: any, mcp_s
     return data.result ?? data;
   } else {
     const text = await res.text();
-    console.log('texxxt', text)
+    // console.log('texxxt', text)
     const dataLines = text.split('\n').filter(line => line.startsWith('data: '));
     const payloads = dataLines.map(line => {
       try { return JSON.parse(line.replace(/^data: /, '')); } catch (e) { return null }

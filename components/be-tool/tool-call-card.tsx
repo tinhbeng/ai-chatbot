@@ -1,5 +1,7 @@
 import { Copy, CheckCircle, TrendingUp, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 function Section({
   title,
@@ -76,11 +78,17 @@ export function ToolCallCard({
       </div>
 
       <Section title="Request" copyText={JSON.stringify(args, null, 2)}>
-        {JSON.stringify(args, null, 2)}
+        <SyntaxHighlighter language="json" style={oneDark} customStyle={{ borderRadius: 8, fontSize: 13 }}>
+          {JSON.stringify(args, null, 2)}
+        </SyntaxHighlighter>
       </Section>
 
-      <Section title={`Response (Status: ${status})`} copyText={JSON.stringify(result, null, 2)}>
-        {typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)}
+      <Section title={`Response (Status: ${status})`} copyText={result.content?.[0]?.text ? result.content[0].text : JSON.stringify(result, null, 2)}>
+        
+        <SyntaxHighlighter language="json" style={oneDark} customStyle={{ borderRadius: 8, fontSize: 13 }}>
+        {/* {typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)} */}
+          {result.content?.[0]?.text ? result.content[0].text : JSON.stringify(result, null, 2)}
+        </SyntaxHighlighter>
       </Section>
     </div>
   );
