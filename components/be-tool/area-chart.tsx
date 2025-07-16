@@ -22,7 +22,6 @@ export default function PriceAreaChart({
   timeFrame: string;
 }) {
 
-  console.log('dataaaa', data)
   const dateTimeFormatter = (time: number, timeFrame: string) => {
     let pattern;
 
@@ -44,8 +43,7 @@ export default function PriceAreaChart({
       const jsonString = text.slice(startIndex);
       const dataObj = JSON.parse(jsonString);
       // Nếu data là object chứa mảng, ví dụ: { data: [...] }
-      const dataArray = dataObj.data; // Hoặc truy sâu hơn nếu cần
-      console.log(dataArray);
+      const dataArray = dataObj.data;
       return dataArray?.items
     } else if (data?.data?.items) { 
       return data?.data?.items

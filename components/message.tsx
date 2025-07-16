@@ -199,10 +199,10 @@ const PurePreviewMessage = ({
                   const { result, toolName, args } = toolInvocation;
                   return (
                     <div key={toolCallId}>
-                      <ToolCallCard toolName={toolName} args={args} result={result} status={result?.status}/>
+                      {/* <ToolCallCard toolName={toolName} args={args} result={result} status={result?.status}/> */}
                       {toolName === 'getWeather' ? (
                         <Weather weatherAtLocation={result} />
-                      ) : toolName === 'get-defi-history_price' ? (
+                      ) : toolName === 'getPriceHistory' ? (
                         <PriceAreaChart data={result} timeFrame={args?.type || '1D'} />
                       ) : toolName === 'getTokenTrending' ? (
                         <TrendingToken data={result?.data?.tokens} />
