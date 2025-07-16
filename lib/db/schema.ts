@@ -63,18 +63,18 @@ export const message = pgTable('Message_v2', {
 
 export type DBMessage = InferSelectModel<typeof message>;
 
-// export const tools = pgTable('tools', {
-//   id: serial("id").primaryKey(),
-//   user_id: uuid("user_id").references(() => user.id, { onDelete: "cascade" }),
-//   mcp_url: text("mcp_url").notNull(),
-//   name: varchar("name", { length: 255 }).notNull(),
-//   description: text("description"),
-//   input_schema: jsonb("input_schema"),
-//   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
-//   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-// });
+export const tools = pgTable('tools', {
+  id: serial("id").primaryKey(),
+  user_id: uuid("user_id").references(() => user.id, { onDelete: "cascade" }),
+  mcp_url: text("mcp_url").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  input_schema: jsonb("input_schema"),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
 
-// export type DBTools = InferSelectModel<typeof tools>;
+export type DBTools = InferSelectModel<typeof tools>;
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://chat-sdk.dev/docs/migration-guides/message-parts
